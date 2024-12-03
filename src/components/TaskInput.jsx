@@ -1,7 +1,10 @@
 import { XIcon } from "lucide-react";
+import useLocalStorage from "../hooks/useLocalStorage";
 
-const TaskInput = ({ propValue, toggleProp, taskList, updateTaskList }) => {
+const TaskInput = ({ toggleProp }) => {
 	
+	const { addTask } = useLocalStorage();
+
 	const handleSubmit = (event) => {
 		event.preventDefault();
 		
@@ -14,8 +17,7 @@ const TaskInput = ({ propValue, toggleProp, taskList, updateTaskList }) => {
 			priority: formData.get("priority")
 		}
 
-		localStorage.setItem(task.taskId,JSON.stringify(task))
-		updateTaskList([...taskList,task])
+		addTask(task);
 		toggleProp(false)
 	};
 
