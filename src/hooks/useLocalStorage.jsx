@@ -1,43 +1,81 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext } from "react";
 
-const useLocalStorage = () => {
+const TaskContext = createContext();
+const TaskProvider = ({ children }) => {
 	const [tasks, setTask] = useState([]);
+	// const [taskIdToEdit, setTaskIdToEdit] = useState(null);
 
 	useEffect(() => {
-		(() => {
-			const item = Object.keys(localStorage)
-				.map((key) => localStorage.getItem(key))
-				.map((task) => task && JSON.parse(task));
+		const fetchData = () => {
+			const taskInLS = Object.keys(localStorage)
+				.map((key) => key.includes("task_") && localStorage.getItem(key))
+				.filter(Boolean)
+				.map((task) => JSON.parse(task));
 
-            setTask(item);
-		})();
-	});
+			console.log("this is running", taskInLS);
+			setTask(taskInLS);
+		};
+		fetchData();
+	}, []);
 
-    const addTask = (task) => {
+	const getTask = (taskId) => JSON.parse(localStorage.getItem(taskId));
 
-        setTask(prev => [...prev, task])
-        localStorage.setItem(task.taskId, JSON.stringify(task))
-        console.log(tasks,"What is the status of tasks.",task)
-    }
+	const addTaskToLS = (taskId, task) =>
+		localStorage.setItem(taskId, JSON.stringify(task));
 
-    const removeTask = (taskId) => {
-        localStorage.removeItem(taskId);
-        const updatedTask = tasks.filter(task => task.taskId !==taskId);
-        setTask(updatedTask)
-    }
+	const addTask = (task) => {
+		// react state is updated.
+		setTask((prev) => [...prev, task]);
 
-    const markAsCompleted = (taskId) => {
-        const task = JSON.parse(localStorage.getItem(taskId));
+		// localStorage is updated.
+		addTaskToLS(task.taskId, task);
+		// localStorage.setItem(task.taskId, JSON.stringify(task));
+	};
 
-        if(!task)return;
+	const removeTask = (taskId) => {
+		setTask((prev) => prev.filter((key) => key.taskId !== taskId));
 
-        task.status = "completed";
-        localStorage.setItem(taskId, JSON.stringify(task));
-        tasks.find(item=> taskId === item.taskId).status === "completed";
+		localStorage.removeItem(taskId);
+	};
 
-        console.log(tasks, "After updating");
-    }
-    return { tasks, addTask, removeTask, markAsCompleted };
+	const markCompleted = (taskId) => {
+		// tasks.find(key => key.taskId === taskId).status = "completed"
+		setTask((prev) =>
+			prev.map((task) =>
+				task.taskId === taskId ? { ...task, status: "completed" } : task
+			)
+		);
+
+		const task = getTask(taskId);
+		task.status = "completed";
+
+		addTaskToLS(taskId, task);
+		// localStorage.setItem(taskId,JSON.stringify(task));
+	};
+
+	const updateTask = (taskId, task) => {
+		setTask((prev) =>
+			prev.map((item) => (item.taskId === taskId ? task : item))
+		);
+		const item = getTask(taskId);
+
+		const updatedTask = { ...item, ...task };
+
+		addTaskToLS(taskId, updatedTask);
+		// localStorage.setItem(taskId, JSON.stringify(updatedTask));
+	};
+
+	const TaskValue = {
+		tasks,
+		addTask,
+		removeTask,
+		markCompleted,
+		updateTask,
+	};
+
+	return (
+		<TaskContext.Provider value={TaskValue}>{children}</TaskContext.Provider>
+	);
 };
 
-export default useLocalStorage;
+export { TaskContext, TaskProvider };

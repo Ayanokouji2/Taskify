@@ -1,9 +1,11 @@
 import { XIcon } from "lucide-react";
-import useLocalStorage from "../hooks/useLocalStorage";
+import { useContext } from "react";
+import { TaskContext } from "../hooks/useLocalStorage";
+
 
 const TaskInput = ({ toggleProp }) => {
 	
-	const { addTask } = useLocalStorage();
+	const {addTask} = useContext(TaskContext)
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
@@ -11,14 +13,14 @@ const TaskInput = ({ toggleProp }) => {
 		const formData = new FormData(event.target);
 
 		const task = {
-			taskId: Math.floor(Math.random()*9000 + 1000),
+			taskId: `task_${Math.floor(Math.random()*9000 + 1000)}`,
 			description: formData.get("description"),
 			status: formData.get("status"),
 			priority: formData.get("priority")
 		}
 
 		addTask(task);
-		toggleProp(false)
+		toggleProp(null)
 	};
 
 	return (
@@ -26,7 +28,7 @@ const TaskInput = ({ toggleProp }) => {
 			<div className="bg-white rounded-lg shadow-2xl w-full max-w-md relative animate-fadeIn">
 				<button 
 					className="absolute right-4 top-4 p-2 hover:bg-gray-100 rounded-full transition-colors"  
-					onClick={() => toggleProp(false)}
+					onClick={() => toggleProp(null)}
 				>
 					<XIcon className="text-gray-500 hover:text-red-500 transition-colors" strokeWidth={2} />
 				</button>

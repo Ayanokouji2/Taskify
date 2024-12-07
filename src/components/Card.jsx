@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { EllipsisVertical, Eye, EyeOff } from "lucide-react";
 import EditOption from "./EditOption";
 
-const Card = ({task}) => {
+const Card = ({task, setEdit}) => {
     const [toggleMenu, setToggleMenu] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -40,7 +40,7 @@ const Card = ({task}) => {
                     className="text-gray-600"
                     size={20}
                 />
-                {toggleMenu && <EditOption taskId={task.taskId}/>}
+                {toggleMenu && <EditOption taskId={task.taskId} setEdit={setEdit}/>}
             </button>
 
             <div className={`mb-8 mt-8 ${!isExpanded && 'h-[160px] overflow-hidden'}`}>
@@ -55,7 +55,7 @@ const Card = ({task}) => {
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         statusColors[task.status]
                     }`}>
-                        {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                        {task?.status}
                     </span>
                 </div>
                 
@@ -64,7 +64,7 @@ const Card = ({task}) => {
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         priorityColors[task.priority]
                     }`}>
-                        {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                        {task?.priority}
                     </span>
                 </div>
             </div>
